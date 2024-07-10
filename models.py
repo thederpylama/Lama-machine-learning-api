@@ -19,11 +19,8 @@ class Sequential:
 
     # forward propagation
     def forward_prop(self, train):
-        print(self.modelLayers[0].get_prev_layer_dim())
-
         # initialize layer 0 weights and biases
         if self.modelLayers[0].get_prev_layer_dim() is None:
-            print(train.shape[0])
             self.modelLayers[0].set_prev_layer_dim(train.shape[0])
             self.modelLayers[0].comp(None)
 
@@ -31,16 +28,8 @@ class Sequential:
         res = self.modelLayers[0].forward_pass(train)
         out.append(res)
         for i in range(len(self.modelLayers) - 1):
-            print("i")
-            print(i)
             res = self.modelLayers[i + 1].forward_pass(res[1])
             out.append(res)
-
-        '''
-        print('out')
-        copy = np.array(out)
-        print(copy.shape)
-        '''
 
         return out
 
@@ -97,14 +86,13 @@ class Sequential:
     # update the weights and biases using calcs from back_prop
     def update_params(self, alpha):
         for i in range(len(self.modelLayers)):
-            print("params layer ", i + 1)
             if self.modelLayers[i].__str__() == 'Dense':
                 self.modelLayers[i].update(alpha)
 
     # main training loop, also displays accuracy throughout training
     def train(self, train, labels, epochs, learningRate):
         for i in range(epochs):
-            print("Epoch ", i + 1)
+            # print("Epoch ", i + 1)
             forwardOut = self.forward_prop(train)
             self.backward_prop(forwardOut, train, labels)
             self.update_params(learningRate)

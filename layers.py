@@ -41,7 +41,6 @@ class Dense:
 
         # case for first layer
         else:
-            print(type(self.prev_layer_dim))
             self.weights = np.random.rand(self.dim, self.prev_layer_dim) - 0.5
             self.biases = np.random.rand(self.dim, 1) - 0.5
             print("h")
@@ -74,8 +73,7 @@ class Dense:
         # ReLU activation function
         if self.activation == 'relu':
             a = activations.relu(z)
-            # print(a)
-            # print(a.shape)
+
 
         # softmax activation, usually for final layer
         elif self.activation == 'softmax':
@@ -92,27 +90,17 @@ class Dense:
     def backward_pass(self, z, a, dZ0, w, m):
 
         if self.activation == 'relu':
-            # print("dZ0")
-            # print(dZ0.shape)
-            print("z")
-            print(z.shape)
             dZ1 = w.T.dot(dZ0) * activations.deriv_relu(z)
-            print("dZ1")
-            print(dZ1.shape)
-            print(a.shape)
 
         # linear activation case, probably needs work
         else:
             dZ1 = w.T.dot(dZ0)
         self.dW = (1 / m) * dZ1.dot(a.T)
-        print(self.dW.shape)
         self.dB = (1 / m) * np.sum(dZ1)
 
         return dZ1
 
     # update the weights and biases using alpha as the learning rate
     def update(self, alpha):
-        print("dW")
-        print(self.dW.shape)
         self.weights = self.weights - alpha * self.dW
         self.biases = self.biases - alpha * self.dB
