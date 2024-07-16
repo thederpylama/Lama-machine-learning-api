@@ -8,6 +8,7 @@ import activations
 # class for a full connected dense layer
 class Dense:
     '''
+    Another constructor version
     def __init__(self, inArray, inDim, outputDim, activation):
         self.inArray = inArray
         self.inDim = inDim
@@ -27,6 +28,7 @@ class Dense:
         self.dW = None
         self.dB = None
         self.activation = activation
+        self.dropFlag = False
 
     # override string representation to for identifying layer type
     def __str__(self):
@@ -43,7 +45,6 @@ class Dense:
         else:
             self.weights = np.random.rand(self.dim, self.prev_layer_dim) - 0.5
             self.biases = np.random.rand(self.dim, 1) - 0.5
-            print("h")
 
     def get_prev_layer_dim(self):
         return self.prev_layer_dim
@@ -66,6 +67,9 @@ class Dense:
     def set_dB(self, dB):
         self.dB = dB
 
+    def set_dropFlag(self, flag):
+        self.dropFlag = flag
+
     # preforms the forward pass for a given layer
     def forward_pass(self, inArray):
         z = self.weights.dot(inArray) + self.biases
@@ -73,7 +77,6 @@ class Dense:
         # ReLU activation function
         if self.activation == 'relu':
             a = activations.relu(z)
-
 
         # softmax activation, usually for final layer
         elif self.activation == 'softmax':
@@ -84,7 +87,8 @@ class Dense:
         # linear activation case
         else:
             a = z
-        return z, a
+
+        return [z, a]
 
     # performs the backwards pass for a given layer
     def backward_pass(self, z, a, dZ0, w, m):
@@ -104,3 +108,34 @@ class Dense:
     def update(self, alpha):
         self.weights = self.weights - alpha * self.dW
         self.biases = self.biases - alpha * self.dB
+
+
+class Dropout:
+
+    def __init__(self, rate):
+        self.rate = rate
+        self.prev_shape = None
+        self.mask = None
+
+    def __str__(self):
+        return "Dropout"
+
+    def comp(self, shape):
+        self.prev_shape = shape
+
+    def drop(self, a):
+        u, v = a.shape
+
+        # random boolean mask for which values will be changed
+        # mask = np.random.randint(0, 2, size=x.shape).astype(np.bool)
+        self.mask = np.random.choice([0, 1], size=a.shape, p=((1 - self.rate), self.rate)).astype(bool)
+
+        # random matrix the same shape of your data
+        r = np.zeros((u, v))
+
+        # use your mask to replace values in your input array
+        a[self.mask] = r[self.mask]
+
+        a = a * (1/(1 - self.rate))
+
+        return a
